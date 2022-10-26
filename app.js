@@ -1,17 +1,18 @@
-require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
 
-const indexRouter = require('./routes/index');
-const boardRouter = require('./routes/board');
+require('dotenv').config();
 const app = express();
 const port = process.env.PORT;
+const indexRouter = require('./routes/index');
+const boardRouter = require('./routes/board');
 
+app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-// app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', indexRouter);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api', indexRouter);
 app.use('/api/board', boardRouter);
 
 app.get('/' , (req, res) => {
