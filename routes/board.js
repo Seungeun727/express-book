@@ -4,10 +4,21 @@ const pool = require('../db/index');
 
 router.get('/', async(req, res, next) => {
   const connection = await pool.getConnection(async conn => conn);
+
+  let currentPage = parseInt(req.query.currentPage || 1);
+  let pageSize = parseInt(req.query.perPage || 10); 
+  let offset = (currentPage >= 2) ? Math.abs(currentPage - 1) * pageSize: currentPage - 1;
+  let limit = pageSize;
+      
   try {
-    const sql = 'SELECT * FROM board';
-    let [result] = await connection.query(sql);
-    res.send(result);
+    const sql = `select * from board`;
+    const sql2 = `SELECT * FROM board LIMIT ${offset}, ${limit}`;
+    let [totalPost] = await connection.query(sql);
+
+    const totalPage = Math.ceil(totalPost.length / pageSize);
+    
+    let [posts] = await connection.query(sql2);
+    res.send({ posts, totalPage });
     connection.release();
   } catch (err) {
     res.status(500).json(err);
