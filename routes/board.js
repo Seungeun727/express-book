@@ -11,7 +11,7 @@ router.get('/', async(req, res, next) => {
   let limit = pageSize;
       
   try {
-    const sql = `select * from board`;
+    const sql = `SELET * FROM board`;
     const sql2 = `SELECT * FROM board LIMIT ${offset}, ${limit}`;
     let [totalPost] = await connection.query(sql);
 
@@ -25,19 +25,33 @@ router.get('/', async(req, res, next) => {
   }
 });
 
+router.get('/:id', async(req, res, next) => {
+  const postId = req.params.id;  
+  const connection = await pool.getConnection(async conn => conn);
+  try {
+    const sql = `SELECT * FROM board WHERE board_no = ?`;
+    let [result] = await connection.query(sql, postId);
+    res.json(result);
+    connection.release();
+  } catch (err) {
+    console.log('Query Error');
+    res.status(500).send({message: err.message});
+  }
+});
+
 router.post('/write/:id', async(req, res, next) => {
   const id = req.params.id;
   const { title, author, text } = req.body; 
   
   const connection = await pool.getConnection(async conn => conn);
-  
+  const date = new Date();
   try {
     const sql = `INSERT INTO board(user_name, board_title, board_author, createdAt, board_text) values(?, ?, ?, ?, ?)`;
     const values =  [
       id, 
       title,
       author,
-      '2022-10-25', 
+      date, 
       text
     ];
   
@@ -49,5 +63,6 @@ router.post('/write/:id', async(req, res, next) => {
     res.status(500).json({message: err.message});
   }
 });
+
 
 module.exports = router;
