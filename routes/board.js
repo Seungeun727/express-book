@@ -11,7 +11,7 @@ router.get('/', async(req, res, next) => {
   let limit = pageSize;
       
   try {
-    const sql = `SELET * FROM board`;
+    const sql = `SELECT * FROM board`;
     const sql2 = `SELECT * FROM board LIMIT ${offset}, ${limit}`;
     let [totalPost] = await connection.query(sql);
 
@@ -64,5 +64,29 @@ router.post('/write/:id', async(req, res, next) => {
   }
 });
 
+
+router.post('/update/:id', async(req, res, next) => {
+  const id = parseInt(req.params.id);
+  const { title, text } = req.body; 
+  
+  console.log(typeof id);
+  const connection = await pool.getConnection(async conn => conn);
+  const date = new Date();
+  try {
+    const sql = 'UPDATE board SET board_title =?, createdAt=?, board_text =? WHERE board_no =?';
+    const values =  [
+      title,
+      date,
+      text,
+      id, 
+    ];
+  
+    let [result] = await connection.query(sql,values);
+    res.json(result);
+    connection.release();
+  } catch (err) {
+    res.status(500).json({message: err.message});
+  }
+});
 
 module.exports = router;
