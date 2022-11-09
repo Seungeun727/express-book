@@ -89,4 +89,20 @@ router.post('/update/:id', async(req, res, next) => {
   }
 });
 
+
+router.post('/delete/:id', async(req, res, next) => {
+  const postId = parseInt(req.params.id);
+  
+  console.log(typeof postId);
+  const connection = await pool.getConnection(async conn => conn);
+  try {
+    const sql = 'DELETE FROM board WHERE board_no = ?';
+  
+    let [result] = await connection.query(sql, postId);
+    res.json(result);
+    connection.release();
+  } catch (err) {
+    res.status(500).json({message: err.message});
+  }
+});
 module.exports = router;
