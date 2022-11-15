@@ -16,9 +16,11 @@ router.get('/', async(req, res, next) => {
     let [totalPost] = await connection.query(sql);
 
     const totalPage = Math.ceil(totalPost.length / pageSize);
-    
+    const totalPostCount = totalPost.length;
     let [posts] = await connection.query(sql2);
-    res.send({ posts, totalPage });
+
+    const pageInfo = { totalPostCount, totalPage };
+    res.send({ posts, pageInfo });
     connection.release();
   } catch (err) {
     res.status(500).json(err);
