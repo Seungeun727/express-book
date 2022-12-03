@@ -24,8 +24,38 @@ router.post('/register', async(req, res, next) => {
       return res.status(400).json({ errorMsg: "비밀번호가 일치하지 않습니다.", status: false });
     }
   } catch(err) {
-    connection.release();
     return res.status(400).json({ message: err.message, signMessage: { errorMsg: "회원가입에 실패했습니다.", status: false }});
+  }
+});
+
+
+router.get('/register/:id', async(req, res, next) => {
+  let status = true;
+  const connection = await pool.getConnection(async conn => conn);
+  try {
+    if(userId === "undefined" || userId === "null") {
+      console.log('아이디의 형식이 일치하게 5-20자로 작성해주세요.');
+      return false;
+    } else if(userId.length === 0 || userId.length < 5 || userId.length > 20 ) {  
+      console.log('아이디는 5-20자로 작성해주세요.');
+      return false;
+    } else {
+      const sql = `SELECT user_id FROM users WHERE user_id = ?`;
+      const [result] = await connection.query(sql, userId);
+      if(result.length !== 0 && (userId === result[0].user_id)) {
+        connection.release();
+        status = false;
+        console.log("중복된 아이디입니다.");
+        res.status(409).json({ status });
+      } else {
+        connection.release();
+        console.log("중복된 아이디가 아닙니다.");
+        res.status(200).json({ status });
+      }
+    }
+  } catch (err) {
+    res.status(400).json({ message: err.message, status});
+    connection.release();
   }
 });
 
