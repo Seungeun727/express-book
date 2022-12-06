@@ -24,13 +24,14 @@ router.post('/register', async(req, res, next) => {
       return res.status(400).json({ errorMsg: "비밀번호가 일치하지 않습니다.", status: false });
     }
   } catch(err) {
-    return res.status(400).json({ message: err.message, signMessage: { errorMsg: "회원가입에 실패했습니다.", status: false }});
+    return res.status(500).json({ message: err.message, signMessage: { errorMsg: "회원가입에 실패했습니다.", status: false }});
   }
 });
 
 
 router.get('/register/:id', async(req, res, next) => {
   let status = true;
+  const userId = req.params.id;
   const connection = await pool.getConnection(async conn => conn);
   try {
     if(userId === "undefined" || userId === "null") {
@@ -54,8 +55,39 @@ router.get('/register/:id', async(req, res, next) => {
       }
     }
   } catch (err) {
-    res.status(400).json({ message: err.message, status});
+    res.status(500).json({ message: err.message, status});
     connection.release();
+  }
+});
+
+
+router.post('/signin', async(req, res, next) => {
+  const connection = await pool.getConnection(async conn => conn);
+  try {
+    const { id: user_id, password: user_password } = req.body;
+
+    if(user_id !== "undefined" || user_password !== "undefined") {
+      let sql = `SELECT user_password FROM users WHERE user_id = ?`;
+      let params = [ user_id ];
+      const [rows] = await connection.query(sql, params);
+      const encryptedPassword = rows[0].user_password;
+      const matchPassword = bcrypt.compareSync(user_password, encryptedPassword);
+      if(matchPassword) {
+        return res.status(200).json({
+          message: 'Login Success',
+        }); 
+      } else {
+        return res.status(401).json({
+          message: "Invalid ID or Password",
+        }); 
+      }
+    } else {
+      return res.status(401).json({
+        message: 'Invalid ID or Password',
+      });
+    }
+  } catch(err) {
+    return res.status(500).json({ message: err.message });
   }
 });
 
