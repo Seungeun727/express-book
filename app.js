@@ -1,9 +1,10 @@
 const express = require('express');
+const app = express(); 
 const path = require('path');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
-const app = express();
 const port = process.env.PORT;
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
