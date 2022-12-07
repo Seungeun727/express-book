@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/index');
 const bcrypt = require('bcrypt');
+const { createToken } = require('../auth/jwt');
 
 router.post('/register', async(req, res, next) => {
   const connection = await pool.getConnection(async conn => conn);
@@ -67,21 +68,28 @@ router.post('/signin', async(req, res, next) => {
     const { id: user_id, password: user_password } = req.body;
 
     if(user_id !== "undefined" || user_password !== "undefined") {
-      let sql = `SELECT user_password FROM users WHERE user_id = ?`;
+      let sql = `SELECT user_name, user_password FROM users WHERE user_id = ?`;
       let params = [ user_id ];
       const [rows] = await connection.query(sql, params);
       const encryptedPassword = rows[0].user_password;
       const matchPassword = bcrypt.compareSync(user_password, encryptedPassword);
       if(matchPassword) {
-        return res.status(200).json({
-          message: 'Login Success',
-        }); 
+        const accessToken = createToken(user_id, user_password);
+        return res
+          .cookie("accessToken", accessToken, {
+            maxAge: 60 * 60,
+            httpOnly: true
+          })
+          .status(201)
+          .json({ message: 'Login Success', accessToken}); 
       } else {
+        connection.release();
         return res.status(401).json({
           message: "Invalid ID or Password",
         }); 
       }
     } else {
+      connection.release();
       return res.status(401).json({
         message: 'Invalid ID or Password',
       });
