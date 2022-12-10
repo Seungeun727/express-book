@@ -74,14 +74,20 @@ router.post('/signin', async(req, res, next) => {
       const encryptedPassword = rows[0].user_password;
       const matchPassword = bcrypt.compareSync(user_password, encryptedPassword);
       if(matchPassword) {
-        const accessToken = createToken(user_id, user_password);
+        const access_token = createToken(user_id);
+        const userInfo = { user_id };
         return res
-          .cookie("accessToken", accessToken, {
+          .cookie("accessToken", access_token, {
             maxAge: 60 * 60,
-            httpOnly: true
+            httpOnly: false,
           })
           .status(201)
-          .json({ message: 'Login Success', accessToken}); 
+          .json({
+            status: 201, 
+            message: 'Login Success', 
+            userInfo, 
+            access_token 
+          }); 
       } else {
         connection.release();
         return res.status(401).json({
