@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/index');
+const { verifyToken }= require('../middlewares/auth');
 
 router.get('/', async(req, res, next) => {
   const connection = await pool.getConnection(async conn => conn);
@@ -41,16 +42,16 @@ router.get('/:id', async(req, res, next) => {
   }
 });
 
-router.post('/write/:id', async(req, res, next) => {
-  const id = req.params.id;
+router.post('/write', verifyToken, async(req, res, next) => {
+  const id = req.id;
   const { title, author, text } = req.body; 
   
   const connection = await pool.getConnection(async conn => conn);
   const date = new Date();
   try {
-    const sql = `INSERT INTO board(user_name, board_title, board_author, createdAt, board_text) values(?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO board(users_user_id, board_title, board_author, createdAt, board_text) values(?, ?, ?, ?, ?)`;
     const values =  [
-      id, 
+      id,
       title,
       author,
       date, 
