@@ -1,4 +1,4 @@
-const { decodedToken } = require('../auth/jwt');
+const { decodedToken } = require('../utils/jwt');
 const { secrectKey } = require('../config/config');
 
 exports.verifyToken = (req, res, next) => {
@@ -18,7 +18,7 @@ exports.verifyToken = (req, res, next) => {
       res.status(401).json({
         status: 401,
         message: '토큰이 만료되었습니다.'
-      })
+      });
     }
   }
 };
