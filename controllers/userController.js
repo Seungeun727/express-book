@@ -96,4 +96,17 @@ module.exports = {
       }
     }
   },
+  logout: async(req, res, next) => {
+    try {
+      return res
+        .status(205)
+        .cookie("accessToken", null, { maxAge: 0 })
+        .json({
+          status: 205,
+          message: "로그아웃되었습니다."
+        });
+    } catch (err) {
+      console.log(err);
+    }
+  },
 };
