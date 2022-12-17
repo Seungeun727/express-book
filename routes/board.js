@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/index');
 const { verifyToken }= require('../middlewares/auth');
+const controllers = require('../controllers/boardController');
 
 router.get('/', async(req, res, next) => {
   const connection = await pool.getConnection(async conn => conn);
@@ -42,55 +43,8 @@ router.get('/:id', async(req, res, next) => {
   }
 });
 
-router.post('/write', verifyToken, async(req, res, next) => {
-  const id = req.id;
-  const { title, author, text } = req.body; 
-  
-  const connection = await pool.getConnection(async conn => conn);
-  const date = new Date();
-  try {
-    const sql = `INSERT INTO board(users_user_id, board_title, board_author, createdAt, board_text) values(?, ?, ?, ?, ?)`;
-    const values =  [
-      id,
-      title,
-      author,
-      date, 
-      text
-    ];
-  
-    let [result] = await connection.query(sql,values);
-    console.log(values);
-    res.json(result);
-    connection.release();
-  } catch (err) {
-    res.status(500).json({message: err.message});
-  }
-});
-
-
-router.post('/update/:id', async(req, res, next) => {
-  const id = parseInt(req.params.id);
-  const { title, text } = req.body; 
-  
-  console.log(typeof id);
-  const connection = await pool.getConnection(async conn => conn);
-  const date = new Date();
-  try {
-    const sql = 'UPDATE board SET board_title =?, createdAt=?, board_text =? WHERE board_no =?';
-    const values =  [
-      title,
-      date,
-      text,
-      id, 
-    ];
-  
-    let [result] = await connection.query(sql,values);
-    res.json(result);
-    connection.release();
-  } catch (err) {
-    res.status(500).json({message: err.message});
-  }
-});
+router.post('/write', verifyToken, controllers.boardWrite);
+router.post('/update/:id', verifyToken, controllers.boardUpdate);
 
 
 router.post('/delete/:id', async(req, res, next) => {
