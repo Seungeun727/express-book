@@ -1,6 +1,18 @@
  const boardService = require("../services/boardService");
 
 module.exports = {
+  detailBoard: async(req, res, next) => {
+    const postId = req.params.id;  
+    try {
+      const result = await boardService.detailBoard(postId);
+      console.log(result);
+      if(result.status == true) {
+        return res.status(200).json(result.rows);
+      }
+    } catch (err) {
+      res.status(500).send({message: err.message});
+    }
+  },
   boardWrite: async (req, res, next) => {
     const userId = req.id;
     const { title, author, text } = req.body; 
@@ -57,6 +69,23 @@ module.exports = {
         code: 500,
         message: err.message
       });
+    }
+  },
+  boardDelete: async(req, res, next) => {
+    const postId = parseInt(req.params.id);
+    const userId = req.id;
+    try {
+      const values = [ postId, userId ];
+      const result = await boardService.boardDelete(values);
+      if(result.status == true) {
+        console.log(result.status);
+        return res.status(201).json({
+          code: 201,
+          message: `${userId}님의 게시물이 삭제되었습니다.`,
+        });
+      }
+    } catch (err) {
+      res.status(500).json({message: err.message});
     }
   },
 };

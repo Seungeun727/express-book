@@ -1,6 +1,20 @@
 const pool = require('../db/index');
 
 module.exports = {
+  detailBoard: async(postId) => {
+    const connection = await pool.getConnection(async conn => conn);
+    try {
+      const sql = `SELECT * FROM board WHERE board_no =?`;
+      let [rows] = await connection.query(sql, postId);
+      connection.release();
+      return { status: true, rows };
+    } catch (err) {
+      return { 
+        status: false,
+        message: 'Internal server error'
+      };
+    }
+  },
   boardWrite: async (params) => {
     const connection = await pool.getConnection(async conn => conn);
     try {
@@ -39,4 +53,19 @@ module.exports = {
       };
     }
   },
+  boardDelete: async(params) => {
+    console.log('boardService',params);
+    const connection = await pool.getConnection(async conn => conn);
+    try {
+      const sql = 'DELETE FROM board WHERE board_no =? AND users_user_id =?';
+      let [rows] = await connection.query(sql, params);
+      connection.release();
+      return { status: true, data: rows };
+    } catch (err) {
+      return { 
+        status: false,
+        message: 'internal server error'
+      };
+    }
+  }
 };
