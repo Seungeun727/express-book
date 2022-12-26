@@ -6,10 +6,12 @@ module.exports = {
     try {
       const sql = `SELECT * FROM board WHERE users_user_id =? LIMIT 3`;
       const [rows] = await connection.query(sql, userId);
-      connection.release();
-      if(Array.isArray(rows[0]) !== 0) return rows;
-    } catch {
-      next(err);
+      if(rows.length !== 0) return rows;
+    } catch(err) {
+      return { 
+        status: false,
+        message: 'internal server error'
+      };
     }
   },
 };

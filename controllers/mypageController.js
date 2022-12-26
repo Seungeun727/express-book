@@ -4,9 +4,9 @@ module.exports = {
   userPost: async(req, res, next) => {
     try {
       const userId = req.id;
-      const posts = await userService.findUserPost(userId);
-      if(posts) {
-        return res.status(200).json(posts);
+      const findPosts = await userService.findUserPost(userId);
+      if(findPosts) {
+        return res.status(200).json(findPosts);
       }
     } catch (err) {
       next(err);

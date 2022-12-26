@@ -10,24 +10,23 @@ const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
 const boardRouter = require('./routes/board');
 const mypageRouter = require('./routes/mypage');
+const { errorHandler } = require('./middlewares/errorMiddleware');
 
 app.use(cors({credentials: true}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
+
+// Route 
 app.use('/api', indexRouter);
 app.use('/api/user', userRouter);
 app.use('/api/board', boardRouter);
 app.use('/api/mypage', mypageRouter);
 
-app.use((req, res, next) => {
-  res.status(404).json({ statusCode: res.statusCode, message: 'Not Found' });
-});
+// Error Middleware
+app.use(errorHandler);
 
-app.use((err, req, res, next) => {
-  res.status(500).json({ statusCode: res.statusCode, message: 'Internal Server Error' });
-});
 
 app.get('/' , (req, res) => {
   res.send('Express start');

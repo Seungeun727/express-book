@@ -1,4 +1,4 @@
- const boardService = require("../services/boardService");
+const boardService = require("../services/boardService");
 
 module.exports = {
   detailBoard: async(req, res, next) => {
@@ -10,21 +10,21 @@ module.exports = {
         return res.status(200).json(result.rows);
       }
     } catch (err) {
-      res.status(500).send({message: err.message});
+      next(err);
     }
   },
   boardWrite: async (req, res, next) => {
     const userId = req.id;
     const { title, author, text } = req.body; 
     const date = new Date();
-    if(title == '' || text !== '' || author !== '') {
+    if(title == '' || text == '' || author == '') {
       return res.status(205).json({
         code: 205,
         message: '게시물의 내용을 작성해주세요',
       });
     }
     try {
-      const values =  [ userId, title, author, date, text ];
+      const values = [ userId, title, author, date, text ];
       const result = await boardService.boardWrite(values);
       if(result.status == true) {
         return res.status(200).json({
@@ -33,10 +33,7 @@ module.exports = {
         });
       }
     } catch (err) {
-      res.status(500).json({ 
-        code: 500,
-        message: err.message
-      });
+      next(err);
     }
   },
   boardUpdate: async (req, res, next) => {
@@ -65,10 +62,7 @@ module.exports = {
         });
       }
     } catch (err) {
-      res.status(500).json({
-        code: 500,
-        message: err.message
-      });
+      next(err);
     }
   },
   boardDelete: async(req, res, next) => {
@@ -85,7 +79,7 @@ module.exports = {
         });
       }
     } catch (err) {
-      res.status(500).json({message: err.message});
+      next(err);
     }
   },
 };
