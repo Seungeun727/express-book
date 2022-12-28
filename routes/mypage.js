@@ -3,6 +3,7 @@ const router = express.Router();
 const { verifyToken }= require('../middlewares/auth');
 const controllers = require('../controllers/mypageController');
 
-router.get('/board', verifyToken, controllers.userPost);
+router.get('/', verifyToken, controllers.getUserInfo);
+router.get('/article', verifyToken, controllers.userPost);
 
 module.exports = router;
