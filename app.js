@@ -21,8 +21,8 @@ app.use(cookieParser());
 // Route 
 app.use('/api', indexRouter);
 app.use('/api/user', userRouter);
+app.use('/api/user/mypage', mypageRouter);
 app.use('/api/board', boardRouter);
-app.use('/api/mypage', mypageRouter);
 
 // Error Middleware
 app.use(errorHandler);
